@@ -1,0 +1,71 @@
+# This file tells Docker Compose how to set up the services for the application.
+services:
+# name of the service which will be used as hostname for the container
+  db:
+    # Official mysql image from Docker Hub
+    # example of pulling a specific version of mysql image from docker hub.
+    image: mysql:8.0
+    # Container name (optional but easier to identify)
+    container_name: finance_mysql
+    # Restart the container automatically if it stops
+    restart: unless-stopped
+    # Environment variables for the MySQL container
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      # Mapping port 3306 of container to 3306 of the host machine(container to computer)
+    ports:
+      - "3306:3306"
+      # Volume mapping to persist data on the host machine data remains even if the container is removed
+    volumes:
+          - mysql_data:/var/lib/mysql
+      # Health check Docker will check if mysql is ready
+    healthcheck:
+      test: ["CMD", "mysqladmin","ping","-h","localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+  # =======================
+  # Backend Services
+  # =======================
+  backend:
+  # build the image using the Dockerfile in the backend directory
+  # if you are pulling docker image from docker hub, you can use image: <image_name> instead of build
+  # E.g image: bishalmainali/finance-backend:latest no build: ../backend
+  # same for front end and database too.
+    build: ../backend
+    container_name: finance_backend
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+    # important: set the DB_HOST to as "db" which is the service name of the mysql container. This is how the backend will connect to the database. 
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      PORT: 5000
+    # wait until mysql is ready before starting the backend service
+    depends_on:
+      db:
+        condition: service_healthy
+  # name of the service which will be used as hostname for the container
+  frontend:
+  #build uses the Dockerfile from the frontend directory to build the image
+    build: ../my-react-app
+    # Container name (optional but easier to identify)
+    container_name: finance_frontend
+    # restart the service when it stops
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+      # wait until the backend service is ready before starting the frontend service
+    depends_on:
+      - backend
+  # Name the volume declaration
+volumes:
+  mysql_data:
