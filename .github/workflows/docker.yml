@@ -33,8 +33,9 @@ jobs:
         with:
           context: ./backend #(Mention the path of your backend Dockerfile)
           push: true
-          tags: bishalmainali/backend:latest
-          tags: bishalmainali/backend:main-${{steps.sha.outputs.SHORT_SHA}}
+          tags: |
+            bishalmainali/backend:latest
+            bishalmainali/backend:main-${{steps.sha.outputs.SHORT_SHA}}
           
     # step4: Build and push front end image
       - name: Build And Push front end image
@@ -42,6 +43,7 @@ jobs:
         with:
           context: ./my-react-app #(Mention the path of your front end Dockerfile)
           push: true
-          tags: bishalmainali/frontend:latest # dockerhub repository name
-          tags: bishalmainali/frontend:main-${{steps.sha.outputs.SHORT_SHA}}
+          tags: |
+            bishalmainali/frontend:latest # dockerhub repository name
+            bishalmainali/frontend:main-${{steps.sha.outputs.SHORT_SHA}}
           
