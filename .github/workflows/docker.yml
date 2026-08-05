@@ -44,6 +44,6 @@ jobs:
           context: ./my-react-app #(Mention the path of your front end Dockerfile)
           push: true
           tags: |
-            bishalmainali/frontend:latest # dockerhub repository name
+            bishalmainali/frontend:latest 
             bishalmainali/frontend:main-${{steps.sha.outputs.SHORT_SHA}}
           
