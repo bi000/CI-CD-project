@@ -19,6 +19,14 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME}}
           password: ${{ secrets.DOCKERHUB_TOKEN}}
+    # setup Docker buildx
+    # It is used to build multi-platform images and push them to a registry.
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+    # Create  short commit SHA for tagging the image
+      - name: Set short SHA
+        id: sha
+        run: echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
     # step3: Build and push your Backend Docker Image
       - name: Build and Push Backend Docker Image
         uses: docker/build-push-action@v5
@@ -26,6 +34,8 @@ jobs:
           context: ./backend #(Mention the path of your backend Dockerfile)
           push: true
           tags: bishalmainali/backend:latest
+          tags: bishalmainali/backend:main-${{steps.sha.outputs.SHORT_SHA}}
+          
     # step4: Build and push front end image
       - name: Build And Push front end image
         uses: docker/build-push-action@v5
@@ -33,5 +43,5 @@ jobs:
           context: ./my-react-app #(Mention the path of your front end Dockerfile)
           push: true
           tags: bishalmainali/frontend:latest # dockerhub repository name
-
+          tags: bishalmainali/frontend:main-${{steps.sha.outputs.SHORT_SHA}}
           
