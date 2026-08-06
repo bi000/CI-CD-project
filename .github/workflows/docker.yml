@@ -1,159 +1,150 @@
-# name of the workflows
+# Name of the workflow
 name: Build And Push Docker Image
-# (Event) When should this workflow run.
+
+# When should this workflow run
 on:
-# on push in mention below branch starts(starts) the workflow
-  push: 
-    branches: ["main"] 
+  push:
+    branches: ["main"]
   pull_request:
-    branches: ["main"] # This is optional 
+    branches: ["main"]
   release:
     types: [published]
 
 jobs:
-# ===================
-# Backend jobs
-# ===================
-  build-and-push-backend: #jobs must be unique in the workflow
+  # ======================
+  # Backend Job
+  # ======================
+  build-and-push-backend:
     runs-on: ubuntu-latest
 
-    #============ Build only related file changes ==================
-    #run this steps only if there is are changes in backend file.
+    # Run only if backend files changed or it is a release
     if: |
-      github.event_name == 'release' || contains(github.event.head_commit.modified, 'backend/') || contains(github.event.head_commit.added, 'backend/')
-    
+      github.event_name == 'release' ||
+      contains(github.event.head_commit.modified, 'backend/') ||
+      contains(github.event.head_commit.added, 'backend/')
+
     steps:
-    # step1: Download your code
+      # Step 1: Download code
       - name: Checkout code
         uses: actions/checkout@v4
 
-    # ================== CI Testing ========================
-    # step1: Install node.js version 20
+      # Step 2: Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'      # cache npm dependencies to speed up the workflow
-          cache-dependency-path: backend/package-lock.json # path to package-lock.json for caching
-    
-    # step2: Install backend dependencies using ci (clean install)
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      # Step 3: Install backend dependencies
       - name: Install backend dependencies
+        working-directory: ./backend
         run: npm ci
-        working-directory: ./backend
 
-    # step:3 Run linting (only if lint script exists in package.json)   
+      # Step 4: Run linting
       - name: Run Linting
+        working-directory: ./backend
         run: npm run lint --if-present
-        working-directory: ./backend
 
-    # step4: Run backend tests   
+      # Step 5: Run backend tests
       - name: Run backend tests
-        run: npm test --if-present
         working-directory: ./backend
-    # ================== Test Ends here ======================      
+        run: npm test --if-present
 
-    # step2: Login to your Docker Hub
+      # Step 6: Login to Docker Hub
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME}}
-          password: ${{ secrets.DOCKERHUB_TOKEN}}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    # ================== Version Tagging =========================
-
-    # setup Docker buildx
+      # Step 7: Setup Docker Buildx
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-    # Create  short commit SHA for tagging the image
+      # Step 8: Create short commit SHA
       - name: Set short SHA
         id: sha
         run: echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
 
-    # step3: Build and push your Backend Docker Image
+      # Step 9: Build and Push Backend Image
       - name: Build and Push Backend Docker Image
         uses: docker/build-push-action@v5
         with:
-          context: ./backend #(Mention the path of your backend Dockerfile)
+          context: ./backend
           push: true
-          # commit SHA tagging added on backend image
-          # Semantic versoning can also be added here for tagging the image
-          # adding layer caching for backend image to reduce build time.
           tags: |
             bishalmainali/backend:latest
-            bishalmainali/backend:main-${{steps.sha.outputs.SHORT_SHA}}
-            ${{github.event_name == 'release' && format('bishalmainali/backend:{0}', github.event.release.tag_name ) || ''}}
+            bishalmainali/backend:main-${{ steps.sha.outputs.SHORT_SHA }}
+            ${{ github.event_name == 'release' && format('bishalmainali/backend:{0}', github.event.release.tag_name) || '' }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          
-# ===============================
-# Frontend jobs
-# ===============================
+
+  # ======================
+  # Frontend Job
+  # ======================
   build-and-push-frontend:
     runs-on: ubuntu-latest
 
-    #============ Build only related file changes ==================
+    # Run only if frontend files changed or it is a release
     if: |
-      github.event_name == 'release' || contains(github.event.head_commit.modified, 'my-react-app/') || contains(github.event.head_commit.added, 'my-react-app/')
-    
+      github.event_name == 'release' ||
+      contains(github.event.head_commit.modified, 'my-react-app/') ||
+      contains(github.event.head_commit.added, 'my-react-app/')
+
     steps:
-    # Step:1 Download your code
-    - name: Checkout code
-      uses: actions/checkout@v4  
+      # Step 1: Download code
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    # ============ CI Testing for Frontend =========================
-    - name: Install Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-        cache: 'npm'
-        cache-dependency-path: my-react-app/package-lock.json
+      # Step 2: Setup Node.js
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: my-react-app/package-lock.json
 
-    - name: Install frontend dependencies using CI (Clean Install)
-      run: npm ci
-      working-directory: ./my-react-app
+      # Step 3: Install frontend dependencies
+      - name: Install frontend dependencies
+        working-directory: ./my-react-app
+        run: npm ci
 
-    - name: Run Linting 
-      run: npm run lint --if-present
-      working-directory: ./my-react-app
+      # Step 4: Run linting
+      - name: Run Linting
+        working-directory: ./my-react-app
+        run: npm run lint --if-present
 
-    - name: Run frontend tests
-      run: npm test --if-present
-      working-directory: ./my-react-app
-    # ================== Test Ends here ======================
+      # Step 5: Run frontend tests
+      - name: Run frontend tests
+        working-directory: ./my-react-app
+        run: npm test --if-present
 
-    # Step:2 Login to your docker Hub
-    - name: Log in to Docker Hub
-      uses: docker/login-action@v3
-      with:
-        username: ${{ secrets.DOCKERHUB_USERNAME}}
-        password: ${{ secrets.DOCKERHUB_TOKEN}}
+      # Step 6: Login to Docker Hub
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    # Step:3 setup buildx
-    - name: Setup buildx
-      uses: docker/setup-buildx-action@v3
-   
-    # ================= Version Tagging =========================
+      # Step 7: Setup Docker Buildx
+      - name: Setup buildx
+        uses: docker/setup-buildx-action@v3
 
-    # Create short commit SHA for tagging the image
-    - name: set short SHA
-      id: sha
-      run: echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
-    
-    # step4: Build and push front end image
-    - name: Build And Push front end image
-      uses: docker/build-push-action@v5
-      with:
-        context: ./my-react-app #(Mention the path of your front end Dockerfile)
-        push: true
-          # commit SHA added in frontend image
-          # added semantic versioning for frontend image too.
-          # adding layer caching for frontend image to reduce build time.
-        tags: |
-          bishalmainali/frontend:latest 
-          bishalmainali/frontend:main-${{steps.sha.outputs.SHORT_SHA}}
-          ${{github.event_name == 'release' && format('bishalmainali/frontend:{0}', github.event.release.tag_name ) || ''}}
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
+      # Step 8: Create short commit SHA
+      - name: Set short SHA
+        id: sha
+        run: echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
 
-          
+      # Step 9: Build and Push Frontend Image
+      - name: Build And Push frontend image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./my-react-app
+          push: true
+          tags: |
+            bishalmainali/frontend:latest
+            bishalmainali/frontend:main-${{ steps.sha.outputs.SHORT_SHA }}
+            ${{ github.event_name == 'release' && format('bishalmainali/frontend:{0}', github.event.release.tag_name) || '' }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
