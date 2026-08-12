@@ -1,0 +1,22 @@
+# api version used by kubernetes for the pod
+apiVersion: v1
+# tells what kind of object we are creating 
+kind: Pod
+# metadata = information about the pod
+metadata:
+# name of the pod (must be unique in the namespace)
+  name: my-first-pod
+# labels helps us to indentify/select this pod later
+  labels:
+    app: demo
+# spec = specification of the pod
+spec:
+# containers = list of containers that will run in this pod
+  containers:
+  # name of the container inside the pod (must be unique in the pod)
+  - name: nginx-container
+    # image = docker image that will be used to create the container
+    image: nginx:latest
+    # ports = list of ports that the container will listen on
+    ports:
+    - containerPort: 80

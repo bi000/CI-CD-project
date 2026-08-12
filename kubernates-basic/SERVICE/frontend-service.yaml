@@ -1,0 +1,21 @@
+# api
+apiVersion: v1
+# type of object
+kind: Service
+#metadata = information about service
+metadata:
+  name: frontend-service
+#spacification 
+spec:
+  # select the pod with this level
+  selector:
+    app: frontend
+  # port configuration
+  ports:
+    - protocol: TCP
+    # service port
+      port: 80
+      targetPort: 80
+      # Node port makes it accessible from the outside the minikube
+# It can be accessed inside and outside like browser etc.
+  type: NodePort

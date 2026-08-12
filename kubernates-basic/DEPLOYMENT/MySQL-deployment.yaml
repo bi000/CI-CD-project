@@ -1,0 +1,55 @@
+# api version for mysql deployment
+apiVersion: apps/v1
+# types of resources
+kind: Deployment
+# metadata = information about the deployment
+metadata:
+  # name of the deployment
+  name: mysql-deployment
+  labels:
+    # label for the deployment
+    app: mysql
+# spacification of the deployment
+spec:
+  # number of replicas of the deployment
+  replicas: 1
+  # selector for the deployment
+  selector:
+    matchLabels:
+      # label for the deployment
+      app: mysql
+# pod templete for the deployment
+  template:
+    metadata:
+      # labels for the pod
+      labels:
+        app: mysql
+    spec:
+      # containers for the pod
+      containers:
+        - name: mysql-container
+        # Official MySQL image from Docker Hub
+          image: mysql:8.0
+        # Port used by the container
+          ports:
+            - containerPort: 3306
+          # environment variables for the container
+          env:
+          # root password for the mysql database from the secret
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: MYSQL_ROOT_PASSWORD
+          # Database username 
+            - name: MYSQL_DATABASE
+              value: finance_tracker
+          # Normal user for the mysql database from the secret
+            - name: MYSQL_USER
+              value: finance_user
+          # user password from secret
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: MYSQL_PASSWORD

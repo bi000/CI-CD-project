@@ -1,0 +1,10 @@
+# Api version 
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-config
+data:
+  DB_HOST: mysql-service
+  DB_PORT: "3306"
+  DB_USER: root
+  DB_NAME: finance_tracker

@@ -1,0 +1,24 @@
+# Api version for mysql service
+apiVersion: v1
+# tupes of resources
+kind: Service
+# metadata = information about the service
+# name of the service (This will be used as DB Host name in the backend)
+metadata:
+  name: mysql-service
+# specification of the service
+spec:
+  # select the pods with this label
+  selector:
+    app: mysql
+# port configuration
+  ports:
+    - protocol: TCP
+    # port exposed by service
+      port: 3306
+    # port used inside the container
+      targetPort: 3306
+  # types of Service (clusterIP,nodePort,LoadBalance, external name)
+  # Cluster Ip allows to communicate only inside the Cluster. Tools like Mysql should not
+  # communicate outside the Cluster that's why ClusterIP is used.
+  type: ClusterIP

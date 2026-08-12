@@ -5,10 +5,10 @@ const { testConnection } = require('./config/db');
 const transactionRoutes = require('./routes/transactions');
 
 const app = express();
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 5000;
 
 // Allow one or more comma-separated origins via CORS_ORIGIN in .env
-const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:3000')
+const allowedOrigins = (process.env.CORS_ORIGIN || 'http://192.168.49.2:32382')
   .split(',')
   .map(o => o.trim());
 

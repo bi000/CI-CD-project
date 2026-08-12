@@ -1,0 +1,75 @@
+# API version used for Deployments
+apiVersion: apps/v1
+
+# Type of Kubernetes object(like Pod, Service, Deployment, etc.)
+kind: Deployment
+
+# Basic information about this Deployment
+metadata:
+  # Name of the Deployment(must be unique in the namespace)
+  name: backend-deployment
+
+  # Labels for identifying this Deployment
+  labels:
+    app: backend
+
+# Desired state of the Deployment
+spec:
+  # Number of Pod copies to run
+  # replicas recreates the pods if it is crashed.
+  replicas: 2
+
+  # Used by Deployment to find the Pods it manages
+  selector:
+    matchLabels:
+      app: backend
+
+  # Template that defines how each Pod should look
+  template:
+    metadata:
+      # Labels attached to each created Pod
+      labels:
+        app: backend
+
+    # Pod specification(pod Items like containers, volumes, etc.)
+    spec:
+      containers:
+        # Name of the container inside the Pod
+        - name: backend-container
+
+          # Your own Docker image from Docker Hub
+          image: bishalmainali/backend:latest
+
+          # Port your backend application listens on
+          # Base on my backend port that it uses to run
+          ports:
+            - containerPort: 5001
+          # Environment variable for database communication 
+          env:
+          # MySQL service name (very important)
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: mysql-config
+                  key: DB_HOST
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: mysql-config
+                  key: DB_PORT
+            - name: DB_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: mysql-config
+                  key: DB_USER
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: mysql-config
+                  key: DB_NAME
+            # from secret
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: MYSQL_ROOT_PASSWORD
