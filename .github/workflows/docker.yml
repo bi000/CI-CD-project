@@ -5,6 +5,7 @@ on:
 # on push in mention below branch starts(starts) the workflow
   push: 
     branches: ["main"] 
+    paths: ["backend/**"]
   pull_request:
     branches: ["main"] # This is optional 
   release:
@@ -19,8 +20,8 @@ jobs:
 
     #============ Build only related file changes ==================
     #run this steps only if there is are changes in backend file.
-    if: |
-      github.event_name == 'release' || contains(toJSON(github.event.head_commit.modified), 'backend/') || contains(toJSON(github.event.head_commit.added), 'backend/')
+#    if: |
+ #     github.event_name == 'release' || contains(github.event.head_commit.modified, 'backend/') || contains(github.event.head_commit.added, 'backend/')
     
     steps:
     # step1: Download your code
