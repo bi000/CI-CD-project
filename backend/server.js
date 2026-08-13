@@ -6,7 +6,6 @@ const transactionRoutes = require('./routes/transactions');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-
 // Allow one or more comma-separated origins via CORS_ORIGIN in .env
 const allowedOrigins = (process.env.CORS_ORIGIN || 'http://finance.local')
   .split(',')

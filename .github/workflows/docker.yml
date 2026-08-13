@@ -5,7 +5,7 @@ on:
 # on push in mention below branch starts(starts) the workflow
   push: 
     branches: ["main"] 
-    paths: ["backend/**","my-react-app/**"]
+    paths: ["backend/**","my-react-app/**",".github/workflows/docker.yml"]
   pull_request:
     branches: ["main"] # This is optional 
   release:
