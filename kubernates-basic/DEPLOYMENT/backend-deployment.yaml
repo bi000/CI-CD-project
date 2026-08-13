@@ -38,7 +38,7 @@ spec:
         - name: backend-container
 
           # Your own Docker image from Docker Hub
-          image: bishalmainali/backend:main-6f197b1
+          image: bishalmainali/backend:main-c207e01
 
           # Port your backend application listens on
           # Base on my backend port that it uses to run

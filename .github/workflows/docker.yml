@@ -90,12 +90,25 @@ jobs:
 # ===============================
 # Frontend jobs
 # ===============================
+# name of the workflows
+name: Build And Push Docker Image
+# (Event) When should this workflow run.
+on:
+# on push in mention below branch starts(starts) the workflow
+  push: 
+    branches: ["main"] 
+    paths: ["my-react-app/**"]
+  pull_request:
+    branches: ["main"] # This is optional 
+  release:
+    types: [published]
+jobs:
   build-and-push-frontend:
     runs-on: ubuntu-latest
 
     #============ Build only related file changes ==================
-    if: |
-      github.event_name == 'release' || contains(github.event.head_commit.modified, 'my-react-app/') || contains(github.event.head_commit.added, 'my-react-app/')
+#    if: |
+#      github.event_name == 'release' || contains(github.event.head_commit.modified, 'my-react-app/') || contains(github.event.head_commit.added, 'my-react-app/')
     
     steps:
     # Step:1 Download your code
