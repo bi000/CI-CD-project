@@ -18,4 +18,4 @@ spec:
       targetPort: 80
       # Node port makes it accessible from the outside the minikube
 # It can be accessed inside and outside like browser etc.
-  type: NodePort
+  type: ClusterIP

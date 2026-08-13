@@ -15,9 +15,9 @@ spec:
   ports:
     - protocol: TCP
     # Service port
-      port: 5001
+      port: 5000
     # container port
-      targetPort: 5001
+      targetPort: 5000
 # Node port makes it accessible from the outside the minikube
 # It can be accessed inside and outside like browser etc.
-  type: NodePort
+  type: ClusterIP

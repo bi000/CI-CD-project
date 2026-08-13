@@ -8,7 +8,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Allow one or more comma-separated origins via CORS_ORIGIN in .env
-const allowedOrigins = (process.env.CORS_ORIGIN || 'http://192.168.49.2:32382')
+const allowedOrigins = (process.env.CORS_ORIGIN || 'http://finance.local')
   .split(',')
   .map(o => o.trim());
 

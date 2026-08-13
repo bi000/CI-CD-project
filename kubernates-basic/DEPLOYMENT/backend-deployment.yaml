@@ -38,12 +38,12 @@ spec:
         - name: backend-container
 
           # Your own Docker image from Docker Hub
-          image: bishalmainali/backend:latest
+          image: bishalmainali/backend:main-6f197b1
 
           # Port your backend application listens on
           # Base on my backend port that it uses to run
           ports:
-            - containerPort: 5001
+            - containerPort: 5000
           # Environment variable for database communication 
           env:
           # MySQL service name (very important)
