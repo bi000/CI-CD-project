@@ -91,7 +91,6 @@ jobs:
 # Frontend jobs
 # ===============================
 # name of the workflows
-jobs:
   build-and-push-frontend:
     runs-on: ubuntu-latest
 
