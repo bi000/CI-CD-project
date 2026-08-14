@@ -43,7 +43,15 @@ export default function App() {
   }, [view]);
 
   useEffect(() => {
-    loadData();
+    // Defer calling `loadData` to the next macrotask so that any `setState`
+    // invoked by `loadData` does not run synchronously inside this effect.
+    // This avoids cascading renders and satisfies the `react-hooks/set-state-in-effect` lint rule.
+    const timer = setTimeout(() => {
+      // Invoke the memoized `loadData` which fetches data and updates state.
+      loadData();
+    }, 0);
+    // Cleanup the timer if the component unmounts or `loadData` changes.
+    return () => clearTimeout(timer);
   }, [loadData]);
 
   const handleCreateOrUpdate = async (formData) => {
