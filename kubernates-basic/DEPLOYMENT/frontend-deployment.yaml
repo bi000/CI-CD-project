@@ -25,7 +25,7 @@ spec:
     spec:
       containers:
         - name: frontend-container
-          image: bishalmainali/frontend:latest
+          image: bishalmainali/frontend:main-9ae164e
           ports:
         # Nginx in your frontend image serves on port 80
             - containerPort: 80

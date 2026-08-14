@@ -22,7 +22,7 @@ app.use('/api/transactions', transactionRoutes);
 
 // 404 handler
 app.use((req, res) => {
-  res.status(404).json({ error: 'Route not found' });
+  res.status(404).json({ error: 'Route not found maybe wrong path' });
 });
 
 // Central error handler (catches anything thrown/passed to next())
