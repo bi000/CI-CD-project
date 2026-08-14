@@ -22,6 +22,12 @@ build/
 */dist/
 */build/
 
+# =======================
+# Database secret
+# ======================
+kubernates-basic/DATABASE-SECRET/configMap.yaml
+kubernates-basic/DATABASE-SECRET/mysql-secret.yaml
+
 # ========================
 # Logs
 # ========================
