@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 const EMPTY_FORM = {
   type: 'expense',
@@ -9,24 +9,18 @@ const EMPTY_FORM = {
 };
 
 export default function TransactionForm({ editingTransaction, onSubmit, onCancelEdit }) {
-  const [form, setForm] = useState(EMPTY_FORM);
+  const [form, setForm] = useState(() => (editingTransaction ? {
+    type: editingTransaction.type,
+    category: editingTransaction.category,
+    description: editingTransaction.description || '',
+    amount: String(editingTransaction.amount),
+    txn_date: editingTransaction.txn_date?.slice(0, 10) || EMPTY_FORM.txn_date,
+  } : EMPTY_FORM));
   const [errors, setErrors] = useState([]);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    if (editingTransaction) {
-      setForm({
-        type: editingTransaction.type,
-        category: editingTransaction.category,
-        description: editingTransaction.description || '',
-        amount: String(editingTransaction.amount),
-        txn_date: editingTransaction.txn_date?.slice(0, 10) || EMPTY_FORM.txn_date,
-      });
-    } else {
-      setForm(EMPTY_FORM);
-    }
-    setErrors([]);
-  }, [editingTransaction]);
+  // Note: avoid calling setState inside effects to prevent cascading renders.
+  // Errors will be cleared on successful submit or when the parent unmounts/remounts this component.
 
   const handleChange = (field) => (e) => {
     setForm((prev) => ({ ...prev, [field]: e.target.value }));
@@ -61,7 +55,11 @@ export default function TransactionForm({ editingTransaction, onSubmit, onCancel
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white border border-line rounded-sm p-5">
+    <form
+      key={editingTransaction ? `edit-${editingTransaction.id || editingTransaction._id || editingTransaction.txn_date}` : 'new'}
+      onSubmit={handleSubmit}
+      className="bg-white border border-line rounded-sm p-5"
+    >
       <div className="flex items-baseline justify-between mb-4">
         <h2 className="font-display text-xl">
           {editingTransaction ? 'Edit entry' : 'New entry'}
