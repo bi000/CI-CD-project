@@ -1,0 +1,24 @@
+# Api version for the backend service
+apiVersion: v1
+# types of oject
+kind: Service
+# metadata = information about the service backend
+metadata:
+  # name of the backend service
+  name: backend-service
+# specification of the service
+  namespace: finance
+spec: 
+#select the pod with this level
+  selector:
+    app: backend
+  #port configuration
+  ports:
+    - protocol: TCP
+    # Service port
+      port: 5000
+    # container port
+      targetPort: 5000
+# Node port makes it accessible from the outside the minikube
+# It can be accessed inside and outside like browser etc.
+  type: ClusterIP

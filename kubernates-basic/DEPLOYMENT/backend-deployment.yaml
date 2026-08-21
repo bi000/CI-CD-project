@@ -1,0 +1,147 @@
+# API version used for Deployments
+apiVersion: apps/v1
+
+# Type of Kubernetes object(like Pod, Service, Deployment, etc.)
+kind: Deployment
+
+# Basic information about this Deployment
+metadata:
+  # Name of the Deployment(must be unique in the namespace)
+  name: backend-deployment
+  namespace: finance
+
+  # Labels for identifying this Deployment
+  labels:
+    app: backend
+
+# Desired state of the Deployment
+spec:
+  # Number of Pod copies to run
+  # replicas recreates the pods if it is crashed.
+  replicas: 2
+
+  # Used by Deployment to find the Pods it manages
+  selector:
+    matchLabels:
+      app: backend
+
+  # Template that defines how each Pod should look
+  template:
+    metadata:
+      # Labels attached to each created Pod
+      labels:
+        app: backend
+
+    # Pod specification(pod Items like containers, volumes, etc.)
+    spec:
+      containers:
+        # Name of the container inside the Pod
+        - name: backend-container
+
+          # Your own Docker image from Docker Hub
+          image: bishalmainali/backend:main-79810f5
+
+          # Port your backend application listens on
+          # Base on my backend port that it uses to run
+          ports:
+            - containerPort: 5000
+          # =====================
+          # Adding resource limit
+          resources:
+            requests:
+              cpu: "10m" #minimum cpu reserved
+              memory: "35Mi" # minimum memory reserved
+            limits:
+              cpu: "100m" #maximum cpu allowed
+              memory: "100Mi" #maximum memory allowed
+          # Environment variable for database communication 
+          # ===========================
+          # Startup Probes
+          # ===========================
+          # Used only when app is starting 
+          # Liveness/readiness wait until it succeeds.
+          startupProbe:
+            httpGet:
+              path: /api/health
+              port: 5000
+              # wait before first check
+            initialDelaySeconds: 10
+          # check in every 5 secons
+            periodSeconds: 5
+          # check the response in every N seconds
+            timeoutSeconds: 2
+          # Allow upto 30 failures
+          # (30*5=150s max startup time)
+            failureThreshold: 30
+
+          # ===========================
+          # readiness probe
+          # ===========================
+          # checks if an app is ready to receive the traffic.
+          # if it is fail, then, kubernetes removes the pod from the service endpoint
+          readinessProbe:
+            httpGet:
+            # api path to check
+              path: /api/health
+            # container port to check
+              port: 5000 
+            # wait the N second after container start and before first check
+            initialDelaySeconds: 5
+            # Runs this check in every N seconds
+            periodSeconds: 10
+            # Max N time to wait for response
+            timeoutSeconds: 2
+            # Numbers of consecutive faliure that marks it as not ready
+            failureThreshold: 3
+            # Number of successes that marks it as ready
+            successThreshold: 1
+
+            # ========================
+            # Liveness Probes
+            # ========================
+            # checks if app is still alive or not
+            # If this fails, kubernetes restart the container
+          livenessProbe:
+            httpGet:
+            # api path to check
+              path: /api/health
+              # container port to check
+              port: 5000
+            # wait longer before first liveness check
+            # Give app time to fully restart
+            initialDelaySeconds: 20
+            # Run this check in every N seconds
+            periodSeconds: 15
+            # max time to wait response
+            timeoutSeconds: 2
+            # number of consecutive failure before restarting container
+            failureThreshold: 3
+
+          env:
+          # MySQL service name (very important)
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: mysql-config
+                  key: DB_HOST
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: mysql-config
+                  key: DB_PORT
+            - name: DB_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: mysql-config
+                  key: DB_USER
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: mysql-config
+                  key: DB_NAME
+            # from secret
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: MYSQL_PASSWORD

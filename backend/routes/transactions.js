@@ -6,7 +6,7 @@ const controller = require('../controllers/transactionController');
 router.get('/summary/daily', controller.getDailySummary);
 router.get('/summary/by-day', controller.getSummaryByDay);
 router.get('/summary', controller.getSummary);
-
+router.get('/health', (req, res) => {res.status(200).send('OK');});
 // CRUD routes
 router.get('/', controller.getTransactions);
 router.get('/:id', controller.getTransactionById);
